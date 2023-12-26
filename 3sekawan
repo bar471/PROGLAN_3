@@ -1,0 +1,284 @@
+package com.example.uap;
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.scene.control.TableView;
+
+public class AplikasiPenyewaanMotor extends Application {
+
+    private final ObservableList<PelangganMotor> daftarPelangganMotor = FXCollections.observableArrayList();
+    private ComboBox<String> motorComboBox;
+
+    private TableView<PelangganMotor> tabelPelangganMotor;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Kelompok 3 Sekawan");
+
+        Label judulLabel = new Label("Penyewaan Motor");
+        judulLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 10;-fx-text-fill: #4682B4;");
+
+        GridPane grid = buatForm();
+
+        Button sewaMButton = new Button("Sewa Motor");
+        sewaMButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;-fx-padding: 10;");
+
+        sewaMButton.setOnAction(e -> {
+            PelangganMotor pelangganMotor = buatPelangganMotorDariForm(grid);
+            if (pelangganMotor != null) {
+                daftarPelangganMotor.add(pelangganMotor);
+                hapusForm(grid);
+            }
+        });
+
+        tabelPelangganMotor = buatTabelPelangganMotor();
+
+        VBox vBox = new VBox(judulLabel, tabelPelangganMotor, grid, sewaMButton);
+        vBox.setStyle("-fx-background-color: #f2f2f2; -fx-padding: 10;");
+        VBox.setMargin(sewaMButton, new Insets(0, 0, 0, 15));
+
+        Scene scene = new Scene(vBox, 800, 600);
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private TableView<PelangganMotor> buatTabelPelangganMotor() {
+        TableView<PelangganMotor> tabelPelangganMotor = new TableView<>();
+        TableColumn<PelangganMotor, String> namaColumn = new TableColumn<>("Nama");
+        TableColumn<PelangganMotor, String> nomorKtpColumn = new TableColumn<>("Nomor KTP");
+        TableColumn<PelangganMotor, String> alamatColumn = new TableColumn<>("Alamat");
+        TableColumn<PelangganMotor, Integer> lamaSewaColumn = new TableColumn<>("Lama Sewa (hari)");
+        TableColumn<PelangganMotor, Double> jarakTempuhColumn = new TableColumn<>("Jarak Tempuh (km)");
+        TableColumn<PelangganMotor, String> motorPilihanColumn = new TableColumn<>("Motor Pilihan");
+
+        namaColumn.setStyle("-fx-text-fill: #191970;");
+        nomorKtpColumn.setStyle("-fx-text-fill: #FF2400;");
+
+        namaColumn.setCellValueFactory(new PropertyValueFactory<>("nama"));
+        nomorKtpColumn.setCellValueFactory(new PropertyValueFactory<>("nomorKtp"));
+        alamatColumn.setCellValueFactory(new PropertyValueFactory<>("alamat"));
+        lamaSewaColumn.setCellValueFactory(new PropertyValueFactory<>("lamaSewa"));
+        jarakTempuhColumn.setCellValueFactory(new PropertyValueFactory<>("jarakTempuh"));
+        motorPilihanColumn.setCellValueFactory(new PropertyValueFactory<>("motorPilihan"));
+
+        tabelPelangganMotor.getColumns().addAll(namaColumn, nomorKtpColumn, alamatColumn, lamaSewaColumn, jarakTempuhColumn, motorPilihanColumn);
+        tabelPelangganMotor.setItems(daftarPelangganMotor);
+
+        return tabelPelangganMotor;
+    }
+
+    private GridPane buatForm() {
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(20));
+
+        Label namaLabel = new Label("Nama:");
+        TextField namaField = new TextField();
+
+        Label nomorKtpLabel = new Label("Nomor KTP:");
+        TextField nomorKtpField = new TextField();
+
+        Label alamatLabel = new Label("Alamat:");
+        TextField alamatField = new TextField();
+
+        Label lamaSewaLabel = new Label("Lama Sewa (hari):");
+        TextField lamaSewaField = new TextField();
+
+        Label jarakTempuhLabel = new Label("Jarak Tempuh (km):");
+        TextField jarakTempuhField = new TextField();
+
+        Label motorLabel = new Label("Motor Pilihan (klik):");
+        motorComboBox = new ComboBox<>();
+        motorComboBox.getItems().addAll("KLX", "CB", "ZX25R", "H2R", "NINJA RR", "SCOOPY", "VESPA MATIC", "VARIO");
+        motorComboBox.setStyle(
+                "-fx-text-fill: #7DF9FF; " +
+                        "-fx-border-color: #3498DB; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-padding: 2px 4px;"
+        );
+
+        Button updateButton = new Button("Update");
+        updateButton.setStyle("-fx-background-color: #1F51FF; -fx-text-fill: white;");
+        updateButton.setOnAction(e -> {
+            PelangganMotor selectedPelanggan = buatPelangganMotorDariForm(grid);
+            if (selectedPelanggan != null) {
+                int selectedIndex = tabelPelangganMotor.getSelectionModel().getSelectedIndex();
+                if (selectedIndex >= 0) {
+                    PelangganMotor existingPelanggan = daftarPelangganMotor.get(selectedIndex);
+                    if (existingPelanggan.getNama().equals(selectedPelanggan.getNama()) &&
+                            existingPelanggan.getNomorKtp().equals(selectedPelanggan.getNomorKtp())) {
+                        daftarPelangganMotor.set(selectedIndex, selectedPelanggan);
+                        hapusForm(grid);
+                        tabelPelangganMotor.refresh();
+                        System.out.println("Data berhasil diupdate!");
+                    } else {
+                        tampilkanPeringatan("Nama atau Nomor KTP tidak cocok. Pilih baris dengan data yang ingin diupdate.");
+                    }
+                } else {
+                    tampilkanPeringatan("Pilih baris untuk diupdate.");
+                }
+            }
+        });
+
+        Button clearButton = new Button("Bersihkan");
+        clearButton.setStyle("-fx-background-color: #FF5733; -fx-text-fill: white;");
+        clearButton.setOnAction(e -> hapusForm(grid));
+
+        Button printButton = new Button("Cetak");
+        printButton.setStyle("-fx-background-color: #FFD700; -fx-text-fill: black;");
+        printButton.setOnAction(e -> {
+            StringBuilder output = new StringBuilder("===== Struk Peminjaman Motor =====\n\n");
+            for (PelangganMotor pelanggan : daftarPelangganMotor) {
+                output.append("Nama: ").append(pelanggan.getNama()).append("\n");
+                output.append("Nomor KTP: ").append(pelanggan.getNomorKtp()).append("\n");
+                output.append("Alamat: ").append(pelanggan.getAlamat()).append("\n");
+                output.append("Lama Sewa: ").append(pelanggan.getLamaSewa()).append(" hari\n");
+                output.append("Jarak Tempuh: ").append(pelanggan.getJarakTempuh()).append(" km\n");
+                output.append("Motor Pilihan: ").append(pelanggan.getMotorPilihan()).append("\n");
+                output.append("\n");
+            }
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Cetak");
+            alert.setHeaderText(null);
+            alert.setContentText(output.toString());
+            alert.showAndWait();
+        });
+
+
+        grid.add(namaLabel, 0, 0);
+        grid.add(namaField, 1, 0);
+        grid.add(nomorKtpLabel, 0, 1);
+        grid.add(nomorKtpField, 1, 1);
+        grid.add(alamatLabel, 0, 2);
+        grid.add(alamatField, 1, 2);
+        grid.add(lamaSewaLabel, 0, 3);
+        grid.add(lamaSewaField, 1, 3);
+        grid.add(jarakTempuhLabel, 0, 4);
+        grid.add(jarakTempuhField, 1, 4);
+        grid.add(motorLabel, 0, 5);
+        grid.add(motorComboBox, 1, 5);
+        grid.add(updateButton, 0, 7);
+        grid.add(clearButton, 0, 6, 2, 1);
+        grid.add(printButton, 1, 7);
+
+        return grid;
+    }
+
+    private PelangganMotor buatPelangganMotorDariForm(GridPane grid) {
+        String nama = ((TextField) grid.getChildren().get(1)).getText();
+        String nomorKtp = ((TextField) grid.getChildren().get(3)).getText();
+        String alamat = ((TextField) grid.getChildren().get(5)).getText();
+        String lamaSewaText = ((TextField) grid.getChildren().get(7)).getText();
+        String jarakTempuhText = ((TextField) grid.getChildren().get(9)).getText();
+        String motorPilihan = motorComboBox.getSelectionModel().getSelectedItem();
+
+        if (nama.isEmpty() || nomorKtp.isEmpty() || alamat.isEmpty() || lamaSewaText.isEmpty() || jarakTempuhText.isEmpty()) {
+            tampilkanPeringatan("Semua kolom harus diisi");
+            return null;
+        }
+
+        if (!nama.matches("[a-zA-Z]+")) {
+            tampilkanPeringatan("Nama hanya boleh berisi huruf");
+            return null;
+        }
+
+        try {
+            if (!nomorKtp.matches("\\d{16}")) {
+                tampilkanPeringatan("Nomor KTP harus 16 angka.");
+                return null;
+            }
+            int lamaSewa = Integer.parseInt(lamaSewaText);
+            double jarakTempuh = Double.parseDouble(jarakTempuhText);
+
+            return new PelangganMotor(nama, nomorKtp, alamat, lamaSewa, jarakTempuh, motorPilihan);
+        } catch (NumberFormatException e) {
+            tampilkanPeringatan("Lama Sewa harus berupa angka dan Jarak Tempuh harus berupa angka atau desimal");
+            return null;
+        }
+    }
+
+    private void hapusForm(GridPane grid) {
+        ((TextField) grid.getChildren().get(1)).clear();
+        ((TextField) grid.getChildren().get(3)).clear();
+        ((TextField) grid.getChildren().get(5)).clear();
+        ((TextField) grid.getChildren().get(7)).clear();
+        ((TextField) grid.getChildren().get(9)).clear();
+    }
+
+    private void tampilkanPeringatan(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Peringatan");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public class PelangganMotor {
+
+        private String nama;
+        private String nomorKtp;
+        private String alamat;
+        private int lamaSewa;
+        private double jarakTempuh;
+        private String motorPilihan;
+
+        public PelangganMotor(String nama, String nomorKtp, String alamat, int lamaSewa, double jarakTempuh, String motorPilihan) {
+            this.nama = nama;
+            this.nomorKtp = nomorKtp;
+            this.alamat = alamat;
+            this.lamaSewa = lamaSewa;
+            this.jarakTempuh = jarakTempuh;
+            this.motorPilihan = motorPilihan;
+        }
+
+        public String getNama() {
+            return nama;
+        }
+
+        public String getNomorKtp() {
+            return nomorKtp;
+        }
+
+        public String getAlamat() {
+            return alamat;
+        }
+
+        public int getLamaSewa() {
+            return lamaSewa;
+        }
+
+        public double getJarakTempuh() {
+            return jarakTempuh;
+        }
+
+        public String getMotorPilihan() {
+            return motorPilihan;
+        }
+
+        @Override
+        public String toString() {
+            return "PelangganMotor{" +
+                    "nama='" + nama + '\'' +
+                    ", nomorKtp='" + nomorKtp + '\'' +
+                    ", alamat='" + alamat + '\'' +
+                    ", lamaSewa=" + lamaSewa +
+                    ", jarakTempuh=" + jarakTempuh +
+                    ", motorPilihan='" + motorPilihan + '\'' +
+                    '}';
+        }
+    }
+}
