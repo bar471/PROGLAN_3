@@ -11,6 +11,16 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.control.TableView;
 
+/**
+ * Aplikasi untuk penyewaan motor oleh pelanggan.
+ * Pelanggan dapat menyewa motor, melakukan update data, mencetak struk, dan lainnya.
+ * Aplikasi ini menggunakan antarmuka pengguna JavaFX.
+ *
+ * @author Kelompok program sederhana penyewaan motor
+ * @version 1.0
+ */
+
+
 public class AplikasiPenyewaanMotor extends Application {
 
     private final ObservableList<PelangganMotor> daftarPelangganMotor = FXCollections.observableArrayList();
@@ -22,12 +32,20 @@ public class AplikasiPenyewaanMotor extends Application {
         launch(args);
     }
 
+    /**
+     * Metode ini digunakan untuk menginisialisasi dan menampilkan antarmuka pengguna.
+     *
+     * @param primaryStage Stage utama aplikasi.
+     */
+
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Kelompok 3 Sekawan");
+        primaryStage.setTitle("program sederhana penyewaan motor");
 
         Label judulLabel = new Label("Penyewaan Motor");
-        judulLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 10;-fx-text-fill: #4682B4;");
+        judulLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;-fx-text-fill: #4682B4;");
+        Label ngalamatLabel = new Label("Jl.jalanain aja ,Kel.bahagia ,Kota.kotak segitiga,Prov.esor");
+        ngalamatLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 10;-fx-text-fill: #4682B4;");
 
         GridPane grid = buatForm();
 
@@ -44,7 +62,7 @@ public class AplikasiPenyewaanMotor extends Application {
 
         tabelPelangganMotor = buatTabelPelangganMotor();
 
-        VBox vBox = new VBox(judulLabel, tabelPelangganMotor, grid, sewaMButton);
+        VBox vBox = new VBox(judulLabel,ngalamatLabel, tabelPelangganMotor, grid, sewaMButton);
         vBox.setStyle("-fx-background-color: #f2f2f2; -fx-padding: 10;");
         VBox.setMargin(sewaMButton, new Insets(0, 0, 0, 15));
 
@@ -107,8 +125,17 @@ public class AplikasiPenyewaanMotor extends Application {
                 "-fx-text-fill: #7DF9FF; " +
                         "-fx-border-color: #3498DB; " +
                         "-fx-border-width: 2px; " +
-                        "-fx-padding: 2px 4px;"
+                        "-fx-padding: 2px 4px;"+
+                        "-fx-effect: dropshadow(gaussian, rgba(125, 267, 255, 1.8), 10, 0, 0, 0);"
         );
+
+        motorComboBox.setOnMouseEntered(event -> {
+            motorComboBox.setStyle("-fx-effect: dropshadow(gaussian, #FF00FF, 10, 0, 0, 0);-fx-padding: 2px 4px;-fx-border-width: 2px;");
+        });
+        motorComboBox.setOnMouseExited(event -> {
+            motorComboBox.setStyle("-fx-effect: dropshadow(gaussian, #00FFFF, 10, 0, 0, 0);-fx-padding: 2px 4px;-fx-border-width: 2px;");
+        });
+
 
         Button updateButton = new Button("Update");
         updateButton.setStyle("-fx-background-color: #1F51FF; -fx-text-fill: white;");
@@ -138,9 +165,9 @@ public class AplikasiPenyewaanMotor extends Application {
         clearButton.setOnAction(e -> hapusForm(grid));
 
         Button printButton = new Button("Cetak");
-        printButton.setStyle("-fx-background-color: #FFD700; -fx-text-fill: black;");
+        printButton.setStyle("-fx-background-color: #F7C80B; -fx-text-fill: black;-fx-font-weight: bold");
         printButton.setOnAction(e -> {
-            StringBuilder output = new StringBuilder("===== Struk Peminjaman Motor =====\n\n");
+            StringBuilder output = new StringBuilder("===== Struk 3 Sekawan Motor =====\n\n");
             for (PelangganMotor pelanggan : daftarPelangganMotor) {
                 output.append("Nama: ").append(pelanggan.getNama()).append("\n");
                 output.append("Nomor KTP: ").append(pelanggan.getNomorKtp()).append("\n");
@@ -227,6 +254,12 @@ public class AplikasiPenyewaanMotor extends Application {
         alert.showAndWait();
     }
 
+
+    /**
+     * Kelas yang merepresentasikan informasi pelanggan motor.
+     * Setiap instance dari kelas ini merepresentasikan satu pelanggan motor.
+     */
+
     public class PelangganMotor {
 
         private String nama;
@@ -235,6 +268,17 @@ public class AplikasiPenyewaanMotor extends Application {
         private int lamaSewa;
         private double jarakTempuh;
         private String motorPilihan;
+
+        /**
+         * Konstruktor untuk membuat instance PelangganMotor baru.
+         *
+         * @param nama          Nama pelanggan.
+         * @param nomorKtp      Nomor KTP pelanggan.
+         * @param alamat        Alamat pelanggan.
+         * @param lamaSewa      Lama sewa motor dalam hari.
+         * @param jarakTempuh   Jarak tempuh motor dalam kilometer.
+         * @param motorPilihan  Motor yang dipilih pelanggan.
+         */
 
         public PelangganMotor(String nama, String nomorKtp, String alamat, int lamaSewa, double jarakTempuh, String motorPilihan) {
             this.nama = nama;
